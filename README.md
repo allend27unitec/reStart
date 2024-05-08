@@ -14,19 +14,19 @@ This is a sample FastAPI project demonstrating user authentication using FastAPI
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your_username/fastapi-authentication.git
+   git clone https://github.com/allend27unitec/reStart.git
    ```
 
 2. Navigate to the project directory:
 
    ```bash
-   cd fastapi-authentication
+   cd reStart 
    ```
 
 3. Install dependencies:
 
    ```bash
-   pip install -r requirements.txt
+   pipenv update
    ```
 
 4. Set up your MySQL database and update the connection URL in `main.py`:
