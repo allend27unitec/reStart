@@ -3,10 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Personal convention for tests and hacks that I want to keep
+# Personal convention for tests, hacks that I want to keep
+# constants.py contains auth info
 *.old
 *.sav
 *.test
+settings.py
 
 # alembic
 alembic.ini

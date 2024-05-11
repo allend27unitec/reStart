@@ -11,6 +11,14 @@ sqlalchemy = "*"
 passlib = "*"
 jose = "*"
 alembic = "*"
+pydantic-settings = "*"
+asyncpg = "*"
+sqlalchemy-utils = "*"
+pytest = "*"
+fastapi-oauth2 = "*"
+pymysql = "*"
+psycopg2 = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 

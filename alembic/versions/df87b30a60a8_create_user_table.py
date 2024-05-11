@@ -9,6 +9,10 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.orm import sessionmaker
+# from sqlalchemy.schema import Base
+from orm.user_model import User
+from orm.base_model import OrmBase
 
 
 # revision identifiers, used by Alembic.
@@ -19,16 +23,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.create_table(
-        'users',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('last_name', sa.String(50), nullable=False),
-        sa.Column('first_name', sa.String(50), nullable=False),
-        sa.Column('username', sa.String(25), nullable=False),
-        sa.Column('email', sa.String(25), nullable=False),
-        sa.Column('password', sa.String(50), nullable=False),
-
+    bind = op.get_bind()
+    session = sessionmaker(bind=bind)()
+    # reflect the database model
+    OrmBase.metadata.create_all(bind=bind)
 
 
 def downgrade() -> None:
-    op.drop_table('users')
+    bind = op.get_bind()
+    session = sessionmaker(bind=bind)()
+    OrmBase.metadata.drop_all(bind=bind)

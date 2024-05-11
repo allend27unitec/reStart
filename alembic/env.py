@@ -4,6 +4,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+import orm
+from app.settings import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,13 +20,18 @@ config = context.config
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+# target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+current_url = config.get_main_option('sqlalchemy.url', None)
+if not current_url:
+    config.set_main_option("sqlalchemy.url", settings.postgres_url)
+
+target_metadata = orm.OrmBase.metadata 
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

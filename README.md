@@ -1,8 +1,22 @@
 # FastAPI Project with Authentication
 
-This is a sample FastAPI project demonstrating user authentication using FastAPI-Users.
+This is a sample FastAPI project demonstrating user authentication using FastAPI-Users. Borrowed heavily from https://thedmitry.pw/blog/2023/08/fastapi-async-sqlalchemy-pytest-and-alembic/
+as a way to learn more quickly and easily. Here's a brief overview of how you can bring together Pydantic, Alembic, pytest, SQLAlchemy, and other tools in a Python project:
+
+Pydantic: Use Pydantic for data validation and serialization. Define Pydantic models to represent your application's data structures and ensure their integrity.
+
+SQLAlchemy: Use SQLAlchemy for database interactions. Define SQLAlchemy ORM models to represent your database tables and relationships. Use Alembic for database migrations to manage changes to your database schema over time.
+
+Alembic: Use Alembic to generate and manage database migrations based on changes to your SQLAlchemy models. Alembic can help automate the process of creating and applying database schema changes as your application evolves.
+
+pytest: Use pytest for testing your application. Write test cases to ensure the correctness and reliability of your codebase. pytest provides a powerful and flexible framework for writing and running tests in Python.
+
+Pydantic-Settings: Use Pydantic-Settings for managing application settings and configuration. Define Pydantic models to represent your application's settings, and use Pydantic-Settings to load and validate configuration values from various sources (e.g., environment variables, configuration files).
+ 
 
 ## Getting Started
+
+The standalone program authorize.py is a starting point that deals with some of the concepts and functionality present in this project.
 
 ### Prerequisites
 
@@ -88,5 +102,4 @@ Contributions are welcome! Feel free to open an issue or submit a pull request.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
 
