@@ -14,6 +14,8 @@ from sqlalchemy.orm import (
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from app.settings import settings
+from orm.user_model import User
+from orm.base_model import OrmBase
 
 # Set up database connection
 try:
@@ -34,6 +36,7 @@ def create_session():
 
 Session = create_session()
 
+'''
 # Set up ORM
 class Base(DeclarativeBase):
     pass
@@ -49,6 +52,7 @@ class User(Base):
 
     def __repr__(self) -> str:
        return f"User(id={self.id}, name={self.last_name}', '{self.first_name}"
+'''
 
 # Set up password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

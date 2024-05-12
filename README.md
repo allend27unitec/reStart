@@ -18,10 +18,13 @@ Pydantic-Settings: Use Pydantic-Settings for managing application settings and c
 
 The standalone program authorize.py is a starting point that deals with some of the concepts and functionality present in this project.
 
+The standalone programs [tutorial.py, tutorial_models.py] are part of the YouTube tutorial by AmigosCode, which is referenced in the documents/Week 1 Instructional Objectives.
+
 ### Prerequisites
 
 - Python 3.7+
 - MySQL database
+- Postgres database
 
 ### Installation
 
