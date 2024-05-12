@@ -19,6 +19,7 @@ fastapi-oauth2 = "*"
 pymysql = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
+python-multipart = "*"
 
 [dev-packages]
 

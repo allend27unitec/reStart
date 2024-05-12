@@ -20,6 +20,8 @@ The standalone program authorize.py is a starting point that deals with some of 
 
 The standalone programs [tutorial.py, tutorial_models.py] are part of the YouTube tutorial by AmigosCode, which is referenced in the documents/Week 1 Instructional Objectives.
 
+The standalone program main.py is based on https://fastapi.tiangolo.com/tutorial
+
 ### Prerequisites
 
 - Python 3.7+

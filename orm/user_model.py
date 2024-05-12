@@ -26,9 +26,10 @@ class User(OrmBase):
    last_name: Mapped[str] = mapped_column(String(30))
    first_name: Mapped[str] = mapped_column(String(30))
    email: Mapped[str] = mapped_column(String(30), unique=True, index=True)
-   hashed_password: Mapped[str] = mapped_column(String(255))
+   hashed_password: Mapped[str] = mapped_column(String(250))
    email_verified_at: Mapped[datetime.datetime] = mapped_column(DateTime)
    is_two_factor_auth_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+   active: Mapped[bool] = mapped_column(Boolean, default=False)
    has_verified_email: Mapped[bool] = mapped_column(Boolean, default=False)
    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
 
