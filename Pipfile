@@ -20,6 +20,7 @@ pymysql = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
 python-multipart = "*"
+pytest-asyncio = "*"
 
 [dev-packages]
 

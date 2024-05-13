@@ -9,7 +9,7 @@ SQLAlchemy: Use SQLAlchemy for database interactions. Define SQLAlchemy ORM mode
 
 Alembic: Use Alembic to generate and manage database migrations based on changes to your SQLAlchemy models. Alembic can help automate the process of creating and applying database schema changes as your application evolves.
 
-pytest: Use pytest for testing your application. Write test cases to ensure the correctness and reliability of your codebase. pytest provides a powerful and flexible framework for writing and running tests in Python.
+pytest: Use pytest for testing your application. Write test cases to ensure the correctness and reliability of your codebase. pytest provides a powerful and flexible framework for writing and running tests in Python.  I am an advocate of Test Driven Development (TDD) and Domain Driven Design (DDD).
 
 Pydantic-Settings: Use Pydantic-Settings for managing application settings and configuration. Define Pydantic models to represent your application's settings, and use Pydantic-Settings to load and validate configuration values from various sources (e.g., environment variables, configuration files).
  
