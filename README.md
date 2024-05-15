@@ -18,9 +18,13 @@ Pydantic-Settings: Use Pydantic-Settings for managing application settings and c
 
 The standalone program authorize.py is a starting point that deals with some of the concepts and functionality present in this project.
 
-The standalone programs [tutorial.py, tutorial_models.py] are part of the YouTube tutorial by AmigosCode, which is referenced in the documents/Week 1 Instructional Objectives.
+The standalone programs [tutorial.py, tutorial_models.py] are part of the YouTube tutorial by AmigosCode, which is referenced in the documents/Week 1 Instructional Objectives. There is an example test in the tests folder. Just type "pytest" in te tests folder or change the path to suit your environment.
 
 The standalone program main.py is based on https://fastapi.tiangolo.com/tutorial
+
+### Assignment and Testing
+
+The folder 01Assignment contains the coding.  The tests are contained under tests. When running pytest go to the specific subfolder to ensure proper module recognition.
 
 ### Prerequisites
 

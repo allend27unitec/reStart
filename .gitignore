@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # Personal convention for tests, hacks that I want to keep
-# constants.py contains auth info
+# settings.py contains auth info, you will need to create your own. Returns database engine.
 *.old
 *.sav
 *.test

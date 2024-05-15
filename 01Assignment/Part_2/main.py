@@ -3,11 +3,10 @@ from pydantic import BaseModel
 from enum import Enum
 from typing import Optional, List
 from uuid import UUID, uuid4
-from tutorial_models import UserAccount, Gender, Role, UserUpdateRequest
 
 app = FastAPI()
 
-db: List[UserAccount] = [
+db: List[Employee] = [
     UserAccount(
     id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
     first_name="Jamila",

@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from app.settings import settings
+from project.settings import settings
 from orm.user_model import User
 from orm.base_model import OrmBase
 from sqlalchemy.orm import (

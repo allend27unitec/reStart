@@ -13,7 +13,7 @@ from sqlalchemy.orm import (
 
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from app.settings import settings
+from project.settings import settings
 from orm.user_model import User
 from orm.base_model import OrmBase
 
