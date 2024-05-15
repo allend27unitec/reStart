@@ -27,7 +27,6 @@ class Employee(OrmBase):
    first_name: Mapped[str] = mapped_column(String(30))
    department: Mapped[str] = mapped_column(String(30))
    salary: Mapped[int] = mapped_column(BigInteger)
-
    email: Mapped[str] = mapped_column(String(30), unique=True, index=True)
    hashed_password: Mapped[str] = mapped_column(String(250))
    email_verified_at: Mapped[datetime.datetime] = mapped_column(DateTime)

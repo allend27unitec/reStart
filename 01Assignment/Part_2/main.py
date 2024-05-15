@@ -1,76 +1,85 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Dict
 from uuid import UUID, uuid4
+from .message_model import Message, MessageUpdateRequest
 
 app = FastAPI()
 
-db: List[Employee] = [
-    UserAccount(
+db: List[Message] = [
+    Message(
     id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
-    first_name="Jamila",
-    last_name="Ahmed",
-    middle_name="",
-    gender=Gender.female,
-    roles=[Role.admin, Role.user]
+    from_address="jam@gmail.com",
+    to_address="Ahmed@unitec.ac.nz",
+    copy_to="",
+    subject="Lorem ipsum",
+    text="Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.",
+    attachment=""
     ),
-    UserAccount(
+    Message(
     id=UUID("b11b61d1-537f-469d-aa7a-11617e028506"),
-    first_name="Alexa",
-    last_name="Jones",
-    middle_name='',
-    gender=Gender.male,
-    roles=[Role.student, Role.user]
+    from_address="Fran@unitec.ac.nz",
+    to_address="Ahmed@unitec.ac.nz",
+    copy_to="",
+    subject="This is the subject of the message",
+    text="This is the text of the message",
+    attachment="file://thisherefile.txt"
     ),
-    UserAccount(
+    Message(
     id=UUID("b90c04ce-16fc-4615-91d5-a39e3ebdd016"),
-    first_name="Alex",
-    middle_name="Beth",
-    last_name="Mohammed",
-    gender=Gender.male,
-    roles=[Role.admin]
+    from_address="dca@gamil.com",
+    to_address="dca@gamil.com",
+    copy_to="",
+    subject="Subject",
+    text="Text",
+    attachment="please find attached"
     )]
 
 @app.get("/")
-async def root():
-    return {"Hello": "World"}
-
-@app.get("/api/v1/fetch")
-async def fetch_users():
+async def get_all_messages() -> Dict:
     return db
 
-@app.post("/api/v1/register")
-async def register_user(user: UserAccount):
-    db.append(user)
-    return {"registered id": user.id}
+@app.get("/api/get/{message_key}")
+async def get_message(message_key: str) -> str:
+    for message in db:
+        if (id == message_key):
+            return message
 
-@app.delete("/api/v1/delete/{user_id}")
-async def delete_user(user_id: UUID):
-    for user in db:
-        if (user.id == user_id):
-            db.remove(user)
-            return {"deleted user": user_id} 
-  #      return {"404 not found": user_id}
+@app.post("/api/create")
+async def create_message(message: Message):
+    db.append(message)
+    return {"new message id": message.id}
+
+@app.delete("/api/delete/{message_id}")
+async def delete_message(message_id: UUID):
+    for message in db:
+        if (message.id == message_id):
+            db.remove(message)
+            return {"deleted message": message_id} 
     raise HTTPException(
         status_code=404,
-        detail=f"user with id: {user_id} does not exist"
+        detail=f"message with id: {message_id} does not exist"
         )
 
-@app.put("/api/v1/update/{user_id}")
-async def update_user(user_update: UserUpdateRequest, user_id: UUID):
-    for user in db:
-        if (user.id == user_id):
-            if (user_update.first_name is not None):
-                user.first_name = user_update.first_name
-            if (user_update.last_name is not None):
-                user.last_name = user_update.last_name
-            user.middle_name = user_update.middle_name
-            if (user_update.roles is not None):
-                user.roles = user_update.roles
+@app.patch("/api/update/{message_id}")
+async def update_message(message_update: MessageUpdateRequest, message_id: UUID):
+    for message in db:
+        if (message.id == message_id):
+            if (message_update.to_address is not None):
+                message.to_address = message_update.to_address
+            if (message_update.last_name is not None):
+                message.from_address = message_update.from_address
+            if (message_update.subject is not None):
+                message.subject = message_update.subject
+            if (message_update.text is not None):
+                message.text = message_update.text
+            if (message_update.copy_to is not None):
+                message.copy_to = message_update.copy_to
+            if (message_update.attachment is not None):
+                message.attachment = message_update.attachment
             return
     raise HTTPException(
         status_code=404,
-        detail=f"user with id: {user_id} does not exist"
+        detail=f"message with id: {message_id} does not exist"
         )
     return
