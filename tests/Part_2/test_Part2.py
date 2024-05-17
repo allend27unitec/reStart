@@ -1,7 +1,7 @@
 from typing import List, Dict
 import sys
 sys.path.append("../../01Assignment")
-from Part_2 import main, message_model, Message, MessageUpdateRequest
+from Part_2 import main, Message, MessageUpdateRequest
 from uuid import UUID
 import pytest
 

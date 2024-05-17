@@ -2,12 +2,13 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 from uuid import UUID, uuid4
-from .message_model import Message, MessageUpdateRequest
+# from .message_model import Message, MessageUpdateRequest
+import message_model as mm
 
 app = FastAPI()
 
-db: List[Message] = [
-    Message(
+db: List[mm.Message] = [
+    mm.Message(
     id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
     from_address="jam@gmail.com",
     to_address="Ahmed@unitec.ac.nz",
@@ -16,7 +17,7 @@ db: List[Message] = [
     text="Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.",
     attachment=""
     ),
-    Message(
+    mm.Message(
     id=UUID("b11b61d1-537f-469d-aa7a-11617e028506"),
     from_address="Fran@unitec.ac.nz",
     to_address="Ahmed@unitec.ac.nz",
@@ -25,7 +26,7 @@ db: List[Message] = [
     text="This is the text of the message",
     attachment="file://thisherefile.txt"
     ),
-    Message(
+    mm.Message(
     id=UUID("b90c04ce-16fc-4615-91d5-a39e3ebdd016"),
     from_address="dca@gamil.com",
     to_address="dca@gamil.com",
@@ -36,17 +37,21 @@ db: List[Message] = [
     )]
 
 @app.get("/")
-async def get_all_messages() -> Dict:
+async def get_all_messages():
     return db
 
-@app.get("/api/get/{message_key}")
-async def get_message(message_key: str) -> str:
+@app.get("/api/get/{message_id}")
+async def get_message(message_id: UUID):
     for message in db:
-        if (id == message_key):
+        if (message.id == message_id):
             return message
+    raise HTTPException(
+        status_code=404,
+        detail=f"message with id: {message_id} does not exist"
+        )
 
 @app.post("/api/create")
-async def create_message(message: Message):
+async def create_message(message: mm.Message):
     db.append(message)
     return {"new message id": message.id}
 
@@ -62,7 +67,7 @@ async def delete_message(message_id: UUID):
         )
 
 @app.patch("/api/update/{message_id}")
-async def update_message(message_update: MessageUpdateRequest, message_id: UUID):
+async def update_message(message_update: mm.MessageUpdateRequest, message_id: UUID):
     for message in db:
         if (message.id == message_id):
             if (message_update.to_address is not None):

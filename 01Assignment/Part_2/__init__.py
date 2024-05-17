@@ -4,4 +4,4 @@ VERSION = '1.0'
 
 from .message_model import Message,  MessageUpdateRequest
 
-__all__ = ['Message', 'MessageUpdateRequest', 'VERSION']
+__all__ = ['Message', 'message_model', 'MessageUpdateRequest', 'VERSION']
