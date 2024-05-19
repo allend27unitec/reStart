@@ -5,7 +5,10 @@ from uuid import UUID, uuid4
 # from .message_model import Message, MessageUpdateRequest
 import message_model as mm
 
-app = FastAPI()
+app = FastAPI(
+    title="Assignment 1 Part 2 ",
+    description="Demonstration of an (email) message API"
+    )
 
 db: List[mm.Message] = [
     mm.Message(
