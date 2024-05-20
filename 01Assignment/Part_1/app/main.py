@@ -1,10 +1,16 @@
 import sys
 import random
-sys.path.append("../../../")
+import json
+import difflib    
+import aiofiles
+import asyncio
+sys.path.append("../../../") # to pick up project settings
+sys.path.append("../") # to pick up functions in parent folder
 from typing import Optional, List, Any, Dict
-from fastapi import FastAPI, Depends, HTTPException, status
-from pydantic import BaseModel
+from fastapi import FastAPI, Response, Depends, HTTPException, status, UploadFile
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -15,14 +21,15 @@ from sqlalchemy.orm import (
     sessionmaker,
     scoped_session
 )
-from passlib.context import CryptContext
-from jose import JWTError, jwt
 from uuid import UUID, uuid4
 from project.settings import settings
 from models.employee_model import Employee, Gender, Role, Department
 from models.base_model import OrmBase
 from schemas.employee_schema import EmployeeCreate, EmployeeRead, EmployeeUpdate
 from dictionaries import convert
+from flow_control import print_pattern
+from file_handling import format_text_file
+from this_list import transform_list
 
 app = FastAPI(
     title="Assignment 1 Part 1 ",
@@ -100,10 +107,35 @@ db: List[Employee] = [
     )]
 
 class FunctionParams(BaseModel):
-    KeyList:Optional[List[str]] = ['a', 'b', 'c']
-    ValueList: Optional[List[int]] = [1, 2, 3]
-    p1: Optional[int]
-    p2: Optional[str]
+    keyList:Optional[List[str]] = ['a', 'b', 'c']
+    valueList: Optional[List[int]] = [1, 2, 3]
+    inputFile: str = '../input.txt'
+    outputFile: str = '../output.txt'
+    startList: List[str] = ['a','b','c','d','e']
+
+class FlatFileUpload:
+    def __init__(self, filename: str):
+        self.filename = filename
+        self.file: Optional[aiofiles.threadpool.binary.AsyncBufferedIOBase] = None
+
+    async def __aenter__(self):
+        self.file = await aiofiles.open(self.filename, mode='rb')
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.file.close()
+
+    async def read(self, size: int = -1):
+        return await self.file.read(size)
+
+    async def write(self, data):
+        await self.file.write(data)
+
+    async def seek(self, offset: int, whence: int = 0):
+        await self.file.seek(offset, whence)
+
+    async def close(self):
+        await self.file.close()
 
 @app.get("/")
 async def root():
@@ -149,11 +181,49 @@ async def register_user(user: EmployeeCreate) -> Employee:
     db.append(user)
     return {"registered id": user.id}
 
-@app.post("/api/v2/dictionaries", response_model=Dict)
+@app.post("/api/v2/dictionaries", response_class=Response)
 async def convert_dict(params: FunctionParams) -> str:
-    result: Dict[str, int] = convert(params.KeyList, params.ValueList)
+    result: Dict[str, int] = convert(params.keyList, params.valueList)
     result = "Dictionary from associated key/value lists: "+ str(result)
-    return {"result": result}
+    return Response(content=result, media_type="text/html")
+
+@app.post("/api/v2/flowcontrol", response_class=Response)
+async def flowcontrol() -> Any:
+    pp1 = print_pattern(4)
+    pp2 = print_pattern(1)
+    result = pp1 + pp2
+    return Response(content=result, media_type="text/html")
+
+@app.post("/api/v2/uploadfile")
+async def createfile(file: UploadFile):
+    return {"filename": file.filename}
+
+@app.post("/api/v2/thislist")
+async def transformlist(params: FunctionParams) -> Any:
+    result = json.dumps(transform_list(params.startList))
+  #  return {"result": result}
+    return Response(content=result, media_type="application/json")
+
+@app.post("/api/v2/filehandling", response_class=Response)
+async def filehandle(params: FunctionParams) -> Any:
+    asyncio.create_task(format_text_file(params.inputFile, params.outputFile))
+    """
+    tried the following but does not support async context manager protocol:
+    async with open(params.inputFile, 'r') as f:
+        c1 = f.readlines()
+    async with open(params.outputFile, 'r') as f:
+        c2 = f.readlines()
+    """
+    async with FlatFileUpload(params.inputFile) as file1, FlatFileUpload(params.outputFile) as file2:
+        c1 = await file1.read()
+        c2 = await file2.read()
+    t1 = c1.decode('utf-8')
+    t2 = c2.decode('utf-8')
+    diff = difflib.unified_diff(t1.splitlines(), t2.splitlines(), lineterm='')
+    result = '\n'.join(diff)
+    return Response(content=result, media_type="text/html")
+
+
 """
 @app.delete("/api/v1/delete/{user_id}")
 async def delete_user(user_id: UUID):

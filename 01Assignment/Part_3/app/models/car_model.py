@@ -28,7 +28,7 @@ class Car(OrmBase):
     model: Mapped[str] = mapped_column(String(30))
     style: Mapped[str] = mapped_column(String(30))
     colour: Mapped[str] = mapped_column(String(30))
-    year: Mapped[date] = mapped_column(DateTime)
+    year: Mapped[date] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 class CarUpdateRequest(OrmBase):

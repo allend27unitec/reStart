@@ -1,4 +1,4 @@
-print("Initializing package from assigment 1 models...")
+print("Initializing package from assigment 1 part 1 models...")
 
 VERSION = '1.0'
 

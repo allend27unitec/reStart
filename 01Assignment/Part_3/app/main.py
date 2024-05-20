@@ -53,29 +53,29 @@ def from_pydantic(pydantic_model, model_class):
     return model_class(**model_dict)
 
 owner_db: List[OwnerBase] = [
-    Owner(
+    OwnerBase(
     id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
     first_name="John",
     last_name="Adams",
-    middle_name="",
+    middle_name=""
     ),
-    Owner(
+    OwnerBase(
     id=UUID("b11b61d1-537f-469d-aa7a-11617e028506"),
     first_name="Alexa",
     last_name="Jones",
-    middle_name='',
+    middle_name=''
     ),
-    Owner(
+    OwnerBase(
     id=UUID("b19b51e1-437f-469d-ab7c-227282272806"),
     first_name="Martin",
     last_name="Smith",
-    middle_name='',
+    middle_name=''
     ),
-    Owner(
+    OwnerBase(
     id=UUID("b90c04ce-16fc-4615-91d5-a39e3ebdd016"),
     first_name="Steven",
     last_name="King",
-    middle_name="",
+    middle_name=""
     )]
 car_db: List[CarBase] = [
     CarBase(
@@ -84,7 +84,7 @@ car_db: List[CarBase] = [
     model="Ranger",
     style="4x4",
     colour="Red",
-    year="2024",
+    year="2024"
     ),
     CarBase(
     id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
@@ -92,7 +92,7 @@ car_db: List[CarBase] = [
     model="Mustang",
     style="convertible",
     colour="red",
-    year="2024",
+    year="2024"
     ),
     CarBase(
     id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
@@ -100,9 +100,34 @@ car_db: List[CarBase] = [
     model="CyberTruck",
     style="4x4",
     colour="Silver",
-    year="2024",
+    year="2024"
     )]
-ownsCar_db: List[OwnsCar] = []
+ownsCar_db: List[OwnsCar] = [
+    OwnsCar(
+    id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
+    owner_id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
+    car_id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
+    colour="",
+    registration="",
+    purchased_dt=1679616000.0
+    ),
+    OwnsCar(
+    id=UUID("45002df7-5c5e-5cc5-977c-2253cd69a2b0"),
+    owner_id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
+    car_id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
+    colour="",
+    registration="",
+    purchased_dt=1679616000.0
+    ),
+    OwnsCar(
+    id=UUID("23880be6-4a3c-4bb4-977c-2253cd69a2b0"),
+    owner_id=UUID("b19b51e1-437f-469d-ab7c-227282272806"),
+    car_id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
+    colour="",
+    registration="",
+    purchased_dt=1679616000.0
+    )]
+
 ownerWithCarsDTO_db: List[OwnerWithCarsDTO] = []
 
 @app.get("/")
@@ -116,6 +141,25 @@ async def fetch_users() -> Any:
 @app.get("/api/v1/cars", response_model=List[CarRead])
 async def fetch_cars() -> Any:
     return car_db
+
+@app.get("/api/v1/owner{owner_id}/cars", response_model=List[CarRead])
+async def get_owner_cars(owner_id:UUID) -> Any:
+    car_ids = [oc.car_id for oc in ownsCar_db if (oc.owner_id == owner_id)]
+    cars = [car for car in car_db if (car.id in car_ids)]
+    return cars
+
+@app.get("/api/test", response_model=None)
+async def get_dict_items(owner_id:UUID) -> Any:
+    ditems:List
+    for o in owner_db: 
+        if (owner_id == o.id): owner=o
+    data = owner.dict()
+    print(dir(data))
+    return ditems
+"""
+    for key, value in data.items():
+        ditems.append("{} {}".format(key, value))
+"""
 
 
 """
