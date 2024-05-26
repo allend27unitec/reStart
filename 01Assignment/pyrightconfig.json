@@ -1,0 +1,59 @@
+{
+  "include": [
+    "./Part_1",
+    "./Part_2",
+    "./Part_3"
+  ],
+
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__"
+  ],
+
+  "ignore": [
+    "src/oldstuff"
+  ],
+
+  "defineConstant": {
+    "DEBUG": true
+  },
+
+  "stubPath": "src/stubs",
+
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+
+  "pythonVersion": "3.12",
+  "pythonPlatform": "MacOS",
+
+  "executionEnvironments": [
+    {
+      "root": "./Part_1",
+      "pythonVersion": "3.12",
+      "pythonPlatform": "MacOS",
+      "extraPaths": [
+          "../",
+          "app/"
+      ]
+    },
+    {
+      "root": "./Part_2",
+      "pythonVersion": "3.12",
+      "pythonPlatform": "MacOS",
+      "extraPaths": [
+        "app/"
+      ]
+    },
+    {
+      "root": "/Part_3",
+      "pythonVersion": "3.12",
+      "pythonPlatform": "MacOS",
+      "extraPaths": [
+        
+      ]
+    },
+    {
+      "root": "01Assignment"
+    }
+  ]
+}

@@ -6,4 +6,5 @@ from .base_model import OrmBase
 from .owner_model import Owner, OwnsCar
 from .car_model import Car
 
-#__all__ = ["OrmBase", "get_session", "db_manager", "Employee", VERSION]
+
+__all__ = ["OrmBase", "Owner", "OwnsCar", "Car", 'VERSION']

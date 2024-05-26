@@ -1,0 +1,31 @@
+"""create employee table
+
+Revision ID: 220004e743fc
+Revises: 
+Create Date: 2024-05-25 21:54:29.617987
+
+"""
+from typing import Sequence, Union
+from alembic import op
+import sqlalchemy as sa
+from sqlalchemy.orm import sessionmaker
+# from sqlalchemy.schema import Base
+from models.base_model import OrmBase
+from models.employee_model import Employee
+
+# revision identifiers, used by Alembic.
+revision: str = '0542a8bec952'
+down_revision: Union[str, None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+def upgrade() -> None:
+    bind = op.get_bind()
+    session = sessionmaker(bind=bind)()
+    # reflect the database model
+    OrmBase.metadata.create_all(bind=bind)
+
+def downgrade() -> None:
+    bind = op.get_bind()
+    session = sessionmaker(bind=bind)()
+    OrmBase.metadata.drop_all(bind=bind)

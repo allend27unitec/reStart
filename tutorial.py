@@ -1,36 +1,34 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from enum import Enum
-from typing import Optional, List
-from uuid import UUID, uuid4
+from typing import List
+from uuid import UUID
 from tutorial_models import UserAccount, Gender, Role, UserUpdateRequest
 
 app = FastAPI()
 
 db: List[UserAccount] = [
     UserAccount(
-    id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
-    first_name="Jamila",
-    last_name="Ahmed",
-    middle_name="",
-    gender=Gender.female,
-    roles=[Role.admin, Role.user]
+        id=UUID("34991cf7-5b4d-4bb4-977c-2253cd69a2b0"),
+        first_name="Jamila",
+        last_name="Ahmed",
+        middle_name="",
+        gender=Gender.female,
+        roles=[Role.admin, Role.user]
     ),
     UserAccount(
-    id=UUID("b11b61d1-537f-469d-aa7a-11617e028506"),
-    first_name="Alexa",
-    last_name="Jones",
-    middle_name='',
-    gender=Gender.male,
-    roles=[Role.student, Role.user]
+        id=UUID("b11b61d1-537f-469d-aa7a-11617e028506"),
+        first_name="Alexa",
+        last_name="Jones",
+        middle_name='',
+        gender=Gender.male,
+        roles=[Role.student, Role.user]
     ),
     UserAccount(
-    id=UUID("b90c04ce-16fc-4615-91d5-a39e3ebdd016"),
-    first_name="Alex",
-    middle_name="Beth",
-    last_name="Mohammed",
-    gender=Gender.male,
-    roles=[Role.admin]
+        id=UUID("b90c04ce-16fc-4615-91d5-a39e3ebdd016"),
+        first_name="Alex",
+        middle_name="Beth",
+        last_name="Mohammed",
+        gender=Gender.male,
+        roles=[Role.admin]
     )]
 
 @app.get("/")
@@ -52,11 +50,11 @@ async def delete_user(user_id: UUID):
         if (user.id == user_id):
             db.remove(user)
             return {"deleted user": user_id} 
-  #      return {"404 not found": user_id}
+    #      return {"404 not found": user_id}
     raise HTTPException(
         status_code=404,
         detail=f"user with id: {user_id} does not exist"
-        )
+    )
 
 @app.put("/api/v1/update/{user_id}")
 async def update_user(user_update: UserUpdateRequest, user_id: UUID):
@@ -73,5 +71,4 @@ async def update_user(user_update: UserUpdateRequest, user_id: UUID):
     raise HTTPException(
         status_code=404,
         detail=f"user with id: {user_id} does not exist"
-        )
-    return
+    )

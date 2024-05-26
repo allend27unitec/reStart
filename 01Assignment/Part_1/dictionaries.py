@@ -6,9 +6,9 @@ May 2024
 """
 from typing import List, Dict
 
-def convert(keys:str, values:int) -> Dict:
+def convert(keys:List[str], values:List[int]) -> Dict:
     # Ensure both lists have the same length
-    if len(keys) != len(values):
+    if (len(keys) != len(values)):
         raise ValueError("Lists must have the same length")
 
     # Create a dictionary using a dictionary comprehension

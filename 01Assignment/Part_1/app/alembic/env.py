@@ -1,11 +1,13 @@
-#from logging.config import fileConfig
+#import sys
+from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
-import orm
-from project.settings import settings
+from models.base_model import OrmBase
+        
+#sys.path.append("../../../") # to pick up project settings
+#from project.settings import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -13,8 +15,8 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-#if config.config_file_name is not None:
-#    fileConfig(config.config_file_name)
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -27,11 +29,12 @@ config = context.config
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-current_url = config.get_main_option('sqlalchemy.url', None)
+current_url = config.get_main_option("sqlalchemy.url") # default to sqlite
+print(f"current url: {current_url}")
 if not current_url:
-    config.set_main_option("sqlalchemy.url", settings.postgres_url)
-
-target_metadata = orm.OrmBase.metadata 
+#    config.set_main_option("sqlalchemy.url", settings.postgres_url)
+    config.set_main_option("sqlalchemy.url", "sqlite:///part1.db")
+target_metadata = OrmBase.metadata 
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

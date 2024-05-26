@@ -1,3 +1,4 @@
+from abc import ABCMeta
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
 
@@ -16,6 +17,9 @@ convention = {
 }
 
 
-class OrmBase(DeclarativeBase):
-    metadata = MetaData(naming_convention=convention)  # type: ignore
+class BaseModelMeta(ABCMeta, type(DeclarativeBase)):
+    pass
 
+class OrmBase(DeclarativeBase, metaclass=BaseModelMeta):
+    metadata = MetaData(naming_convention=convention)
+    __abstract__ = True
