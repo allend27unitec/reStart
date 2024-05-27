@@ -92,7 +92,6 @@ class EmployeeBase(BaseModel, abc.ABC):
            raise ValueError('Salary must be more than 40000')
        return s
 
-
     @property
     def full_name(self):
       return f"{self.last_name}, {self.first_name}"

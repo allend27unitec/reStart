@@ -1,17 +1,10 @@
 from pydantic import (
         BaseModel as PydanticBase, 
-        EmailStr, 
-        field_validator, 
         Field, 
-        ConfigDict, 
-        Discriminator, 
-        Tag
+        ConfigDict 
         )
-from enum import Enum
-from typing import Optional, List
-from uuid import UUID, uuid4
+from typing import Optional
 from datetime import datetime
-from models.car_model import Car
 
 class BaseModel(PydanticBase):
     class Config:
@@ -23,24 +16,25 @@ class BaseModel(PydanticBase):
 
 class CarBase(BaseModel):
 #    model_config = ConfigDict(from_attributes=True)
-    id: Optional[UUID] = uuid4()
+    id: Optional[int]
     make: str 
     model: str
     style: str
-    colour: str
     year: str 
-    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime
+    created_at: datetime
 
 class CarCreate(BaseModel):
     pass
 
 class CarUpdate(BaseModel):
-    make: Optional[str] = None
-    model: Optional[str] = None
+    make: Optional[str]
+    model: Optional[str]
+    updated_at: datetime
 
 class CarRead(BaseModel):
-    id: Optional[UUID] = None
-    make: str 
-    model: str
+    id: Optional[int] = None
+    make: Optional[str]
+    model: Optional[str]
     style: str
-    colour: str
+    year: Optional[str]

@@ -1,13 +1,11 @@
-from pydantic import BaseModel, ConfigDict, validator, EmailStr,Field
-from enum import Enum
+from pydantic import BaseModel, EmailStr,Field
 from typing import Optional, List
-from uuid import UUID, uuid4
 from datetime import datetime, date
 from models.owner_model import Owner, OwnsCar
 
 class OwnerBase(BaseModel):
 #    model_config = ConfigDict(from_attributes=True)
-    id: Optional[UUID] = uuid4()
+    id: Optional[int]
     first_name: str
     last_name: str
     middle_name: str
@@ -30,30 +28,35 @@ class OwnerBase(BaseModel):
 
 class OwnsCar(BaseModel): 
    
-    id: Optional[UUID] = uuid4()
-    owner_id: Optional[UUID] = None 
-    car_id: Optional[UUID] = None 
+    id: Optional[int]
+    owner_id: Optional[int] = None 
+    car_id: Optional[int] = None 
     colour: str 
     registration: str
     purchased_dt: date 
 
 class OwnerWithCarsDTO(BaseModel):
-    id: Optional[UUID] = uuid4()
+    # this DTO breaks normalisation rules for the convenience of a list of cars
+    id: Optional[int] 
     first_name: str
     last_name: str
     middle_name: Optional[str] 
     email: str 
     cars: List[OwnsCar]
 
-class OwnerCreate(BaseModel):
-    password: str
+class OwnerCreateDTO(BaseModel):
+    id: int 
+    first_name: str
+    last_name: str
+    middle_name: Optional[str] 
+    email: str 
+    cars: List[OwnsCar]
 
 class OwnerUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[str] = None
 
 class OwnerRead(BaseModel):
-    id: Optional[UUID] = None
     first_name: str 
     last_name: str
     middle_name: Optional[str] = None

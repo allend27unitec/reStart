@@ -204,11 +204,11 @@ async def show_user(user_id: UUID):
 async def register_user(user: Employee) -> Dict:
     db.append(user)
     return {"registered id": user.id}
-
+'''
 @app.post("/api/v2/dictionaries", response_class=Response)
 async def convert_dict(params: FunctionParams) -> str:
     result: Dict[str, int] = convert(params.keyList, params.valueList)
-    result = "Dictionary from associated key/value lists: "+ str(result)
+    result =  lists: "+ str(result)
     return Response(content=result, media_type="text/html")
 
 @app.post("/api/v2/flowcontrol", response_class=Response)
@@ -246,7 +246,6 @@ async def filehandle(params: FunctionParams) -> Any:
     diff = difflib.unified_diff(t1.splitlines(), t2.splitlines(), lineterm='')
     result = '\n'.join(diff)
     return Response(content=result, media_type="text/html")
-'''
 
 """
 @app.delete("/api/v1/delete/{user_id}")
@@ -308,5 +307,4 @@ if __name__ == "__main__":
         department=Department.research,
         roles=[Role.student, Role.user]
     )
-    print(emp.get_commission(emp))
     print("user: ", emp.id, emp.full_name, emp.salary, emp.roles,emp.emp_number)
