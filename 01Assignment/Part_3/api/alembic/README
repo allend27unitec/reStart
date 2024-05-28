@@ -1,1 +1,4 @@
 Generic single-database configuration.
+For this part of the assignment, we leverage the OrmBase conventions,
+and the target_metatdata declaration in env.py to permit the use of --autogenerate
+option.  Use: alembic revision --autogenerate -m "Some reason for revision text".

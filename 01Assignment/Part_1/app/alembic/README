@@ -1,1 +1,5 @@
 Generic single-database configuration.
+For the purposes of this part of the assignment, we use an 'update_all', rather
+than leveage versioning of the migrations.
+None of this is necessary for the assignment, however the use of abstract classes presents
+an opportunity for some interesting coding.

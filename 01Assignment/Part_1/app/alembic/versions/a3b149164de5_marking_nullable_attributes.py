@@ -22,7 +22,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     bind = op.get_bind()
-    session = sessionmaker(bind=bind)()
+#    session = sessionmaker(bind=bind)()
     # reflect the database model
     OrmBase.metadata.create_all(bind=bind)
 

@@ -172,7 +172,7 @@ async def fetch_users() -> Any:
         print("User dump")
         try:
            print(newUser.model_json_schema())
-        except PyudanticUserError as e:
+        except PydanticUserError as e:
             print(e)
         print(EmployeeRead.model_validate(newUser))
         print

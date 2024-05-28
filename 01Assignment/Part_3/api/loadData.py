@@ -7,11 +7,9 @@ import pandas as pd
 from typing import Optional, List
 from datetime import datetime
 
-global fileName, WRITE_SCRIPT
-   
-fileName = '../../MOCK_DATA.csv'
+FILENAME = '../../MOCK_DATA.csv'
 WRITE_SCRIPT = True
-NUM_REC = 20
+NUM_REC = 25
 
 # connect to SQLite
 
@@ -44,21 +42,31 @@ def random_date(flag) -> datetime:
     end = None
     startU = None
     endU = None
+    unit = 's'
     if (flag == 0):
-      start = pd.to_datetime('2015-01-01')
-      end = pd.to_datetime('2024-01-31')
+        start = pd.to_datetime('2015-01-01')
+        end = pd.to_datetime('2024-01-31')
     if (flag == 1):
-      start = pd.to_datetime('1968-01-01')
-      end = pd.to_datetime('2025-01-01')
-
+        start = pd.to_datetime('1968-01-01')
+        end = pd.to_datetime('2000-01-01')
 #    print(f"start time: '{start.time}'")
+    if (flag == 3):
+        start = pd.to_datetime('1980-01-01')
+        end = pd.to_datetime('2022-01-01')
+    #if (start is not None and end is not None):
+    # Calculate the number of days since the epoch for start and end dates
+        #epoch = pd.Timestamp("1970-01-01")
+        #startU = (start - epoch).days
+        #endU = (end - epoch).days
+        #unit = 'D'
     if (start is not None and end is not None):
-        startU = start.value//10**9
-        endU = end.value//10**9
-#    dt = random.randint(startU, endU)
+        startU = int(start.value//10**9)
+        endU = int(end.value//10**9)
+
+    random_date = random.randint(startU, endU)
 #    return  pd.to_datetime(dt, format='%Y%m%d', errors='coerce')
     if (startU is not None and endU is not None):
-        return pd.to_datetime(random.randint(startU, endU), unit='s')
+        return pd.to_datetime(random_date, unit=unit)
 
 def isEveryOther(time):
    return (random.randrange(1,100) % time == 0)
@@ -69,10 +77,10 @@ class create_owner:
 
     def __init__(self):
         self.id_list = []
-        df = pd.read_csv(fileName)
+        df = pd.read_csv(FILENAME)
         self.rd = df.sample(self.max)
 
-    def create_sql(self):
+    def create_sql(self) -> str:
         sqlInsert = "insert into owner (id,\
                                         last_name,\
                                         first_name,\
@@ -83,7 +91,7 @@ class create_owner:
                                         ) values \n"  
         sqlInsert = re.sub(' +', ' ', sqlInsert)
         lc = ",\n"
-        for id in range(1, self.max): # in case this is also a preferred primary key
+        for id in range(1, self.max): 
             if (id == self.max-1):
                 lc = ";\n"
             row = self.rd.iloc[id]
@@ -102,10 +110,10 @@ class create_owner:
             sqlInsert += row['email']+"', '" 
             sqlInsert += str(ud)+"', '"
             sqlInsert += str(cd)+"')" + lc
-        print(sqlInsert)
+        #print(sqlInsert)
         return sqlInsert
 
-    def get_id_list(self):
+    def get_id_list(self) -> List[int]:
         return self.id_list
 
 
@@ -116,7 +124,7 @@ class create_car:
 
     def __init__(self):
         self.id_list = []
-        df = pd.read_csv(fileName)
+        df = pd.read_csv(FILENAME)
         self.rd = df.sample(self.max)
 
     def create_sql(self):
@@ -147,19 +155,20 @@ class create_car:
             sqlInsert += str(row['car_year'])+"', '" 
             sqlInsert += str(ud)+"', '"
             sqlInsert += str(cd)+"')" + lc
-        print(sqlInsert)
+        #print(sqlInsert)
         return sqlInsert
 
-    def get_id_list(self):
+    def get_id_list(self) -> List[int]:
         return self.id_list
 
 class create_ownscar:
 
     max: int = NUM_REC
+    plate_prefix: List[str] = ['HK','KFD','OR','JFD','DK','YY']
 
     def __init__(self):
         self.id_list = []
-        df = pd.read_csv(fileName)
+        df = pd.read_csv(FILENAME)
         self.rd = df.sample(self.max)
 
     def create_sql(self):
@@ -168,6 +177,7 @@ class create_ownscar:
                                         car_id,\
                                         colour,\
                                         vin,\
+                                        plate_number,\
                                         purchased_dt,\
                                         updated_at,\
                                         created_at\
@@ -183,19 +193,22 @@ class create_ownscar:
             ud:datetime = random_date(0)
             if (cd.date() > ud.date()):
                 t = cd; cd = ud; ud = t
+            pn = random.choice(self.plate_prefix)+str(random.randrange(11111,99999))
             sqlInsert += "("+str(id)+", "
             sqlInsert += str(random.randrange(1, NUM_REC))+", "
             sqlInsert += str(random.randrange(1, NUM_REC))+", '"
             sqlInsert += row['car_colour']+"', '"
             sqlInsert += row['car_vin']+"', '"
-            sqlInsert += str(random_date(1))+"', '" # purchased date
+            sqlInsert += pn+"', '"
+            sqlInsert += str(random_date(3).date())+"', '" # purchased date
             sqlInsert += str(ud)+"', '"
             sqlInsert += str(cd)+"')" + lc
-        print(sqlInsert)
+        #print(sqlInsert)
         return sqlInsert
 
     def get_id_list(self):
         return self.id_list
+
 def writeSqlScript(script: str) -> TextIOWrapper:
     sqlScriptFile = open("sqlScript.txt", 'w+')
         # Print and save lines with line numbers
@@ -204,11 +217,14 @@ def writeSqlScript(script: str) -> TextIOWrapper:
 
     return sqlScriptFile 
 
+conLite=None
+sqlScriptFile=None
 if WRITE_SCRIPT:
     conLite = connectSQLite()
 
-    owner = create_owner()
-    res = owner.create_sql()
+owner = create_owner()
+res = owner.create_sql()
+if WRITE_SCRIPT:
     if (conLite is not None):
         cursor = conLite.cursor()
         cursor.execute("pragma foreign_keys = OFF;")
@@ -220,8 +236,9 @@ if WRITE_SCRIPT:
 
         sqlScriptFile = writeSqlScript(res)
 
-    car = create_car()
-    res = car.create_sql()
+car = create_car()
+res = car.create_sql()
+if WRITE_SCRIPT:
     if (conLite is not None):
         cursor = conLite.cursor()
         cursor.execute("pragma foreign_keys = OFF;")
@@ -231,8 +248,9 @@ if WRITE_SCRIPT:
         cursor.execute(res)
         conLite.commit()
 
-    ownscar = create_ownscar()
-    res = ownscar.create_sql()
+ownscar = create_ownscar()
+res = ownscar.create_sql()
+if WRITE_SCRIPT:
     if (conLite is not None):
         cursor = conLite.cursor()
         cursor.execute("pragma foreign_keys = OFF;")

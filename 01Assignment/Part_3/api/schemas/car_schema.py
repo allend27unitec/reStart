@@ -3,8 +3,9 @@ from pydantic import (
         Field, 
         ConfigDict 
         )
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
+from .owner_schema import OwnerWithCarsDTO
 
 class BaseModel(PydanticBase):
     class Config:
@@ -33,8 +34,11 @@ class CarUpdate(BaseModel):
     updated_at: datetime
 
 class CarRead(BaseModel):
-    id: Optional[int] = None
     make: Optional[str]
     model: Optional[str]
     style: str
-    year: Optional[str]
+    #year: Optional[str]
+
+class CarWithOwnersDTO(BaseModel):
+    car: Optional[CarRead]
+    owners: Optional[List[OwnerWithCarsDTO]]

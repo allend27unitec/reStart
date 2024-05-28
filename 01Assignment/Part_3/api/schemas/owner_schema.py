@@ -28,21 +28,19 @@ class OwnerBase(BaseModel):
 
 class OwnsCar(BaseModel): 
    
-    id: Optional[int]
-    owner_id: Optional[int] = None 
-    car_id: Optional[int] = None 
+    #id: Optional[int]
+    owner_id: int
+    car_id: int
     colour: str 
-    registration: str
-    purchased_dt: date 
+    vin: str
+    plate_number: Optional[str]
+    purchased_dt: Optional[date]
 
-class OwnerWithCarsDTO(BaseModel):
-    # this DTO breaks normalisation rules for the convenience of a list of cars
-    id: Optional[int] 
-    first_name: str
-    last_name: str
-    middle_name: Optional[str] 
-    email: str 
-    cars: List[OwnsCar]
+class UpdateCar(BaseModel):
+    plate_number: Optional[str]
+
+class OwnsCarUpdate(BaseModel): 
+    cars: Optional[List[UpdateCar]]
 
 class OwnerCreateDTO(BaseModel):
     id: int 
@@ -61,3 +59,7 @@ class OwnerRead(BaseModel):
     last_name: str
     middle_name: Optional[str] = None
     email: Optional[str] = None
+    
+class OwnerWithCarsDTO(BaseModel):
+    owner:OwnerRead
+    cars: Optional[List[OwnsCar]]

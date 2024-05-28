@@ -24,6 +24,7 @@ pytest-asyncio = "*"
 aiofiles = "*"
 pandas = "*"
 bcrypt = "*"
+sqlmodel = "*"
 
 [dev-packages]
 

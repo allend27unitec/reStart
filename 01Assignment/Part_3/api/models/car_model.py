@@ -32,3 +32,4 @@ class CarUpdateRequest(OrmBase):
     style: Mapped[Optional[str]]
     year: Mapped[Optional[str]]
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+
