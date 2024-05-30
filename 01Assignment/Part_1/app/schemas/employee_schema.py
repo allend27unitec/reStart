@@ -1,7 +1,8 @@
 import abc
 from pydantic import (
         BaseModel as PydanticBase, 
-        EmailStr, 
+        EmailStr,
+        computed_field, 
         field_validator, 
         Field, 
         ConfigDict, 
@@ -13,13 +14,12 @@ from typing import Optional, List, Union, Literal, Any
 from typing_extensions import Annotated
 from uuid import UUID, uuid4
 from datetime import datetime
-from models.employee_model import Gender, Role, Department
 from classes.contract import Contract
 from classes.commission_contract import CommissionContract
 from classes.freelancer_contract import FreelancerContract
-#from classes.hourly_contract import HourlyContract
-#from classes.salaried_contract import SalariedContract
-#from classes.no_contract import NoContract
+from classes.hourly_contract import HourlyContract
+from classes.salaried_contract import SalariedContract
+from classes.no_contract import NoContract
 
 class BaseModel(PydanticBase):
     class Config:
@@ -30,10 +30,10 @@ class BaseModel(PydanticBase):
             )
 
 def contract_discriminator(c: str) -> str:
-    print(f"c is {c}")
+    print(f"Discriminator c is {c}")
     if (not isinstance(c, (dict, Contract))):
         raise ValueError("Invalid contract type: ", c)
-    return 'ok'
+    return c
 
 class EmployeeCreate(BaseModel):
     password: str
@@ -48,7 +48,7 @@ class EmploymentModel(BaseModel):
     description: str 
 
 class FreelancerModel(BaseModel):
-    type: Literal['freelancer']
+    ctype: Literal['freelancer']
     rate: int
     hours: int
 
@@ -56,14 +56,44 @@ class FreelancerModel(BaseModel):
         return FreelancerContract(rate=self.rate, hours=self.hours)
     
 class CommissionModel(BaseModel):
-    type: Literal['commission']
-    rate: int
+    ctype: Literal['commission']
+    commission: int
+    num_contracts: int
+
+    def to_contract(self):
+        return CommissionContract(commission=self.commission, num_contracts=self.num_contracts)
+
+class SalariedModel(BaseModel):
+    ctype: Literal['salaried']
+    salary: int
     hours: int
 
     def to_contract(self):
-        return CommissionContract(commission=self.rate, num_contracts=self.hours)
+        return SalariedContract(salary=self.salary, hours=self.hours)
+    
+class HourlyModel(BaseModel):
+    ctype: Literal['hourly']
+    rate: int
+    hours: int
+    overhead:int
 
-ContractModel = Union[FreelancerModel, CommissionModel]
+    def to_contract(self):
+        return HourlyContract(rate=self.rate, hours=self.hours, overhead = self.overhead)
+
+class NoContractModel(BaseModel):
+    ctype: Literal['none']
+
+    def to_contract(self):
+        return NoContract()
+
+class ContractModel(BaseModel):
+    contract: Union[FreelancerModel, CommissionModel, 
+                    HourlyModel, SalariedModel, NoContractModel
+                    ] = Field(..., discriminator='ctype')
+
+    def execute_contract(self):
+        return self.contract.to_contract()
+
 
 class EmployeeBase(BaseModel, abc.ABC):
     id: UUID = Field(default_factory=uuid4, frozen=True)
@@ -74,17 +104,9 @@ class EmployeeBase(BaseModel, abc.ABC):
     middle_name: str
     salary: int = Field(gt=4000000, description="Salary must be more than $40,000")
     email: EmailStr
-    hashed_password: str
-    email_verified_at: datetime = Field(default_factory=datetime.now)
-    is_two_factor_auth_enabled: bool
-    active: int
-    has_verified_email: bool
-    gender: Gender
-    roles: List[Role] 
-    department: Department
-    contract_type: ContractModel = Field(..., discriminator='type')
-    contract_data: Json
-    created_at: datetime = Field(default_factory=datetime.now)
+    contract_type: ContractModel 
+    updated_at: datetime
+    created_at: datetime
 
     @field_validator('salary')
     def min_salary(cls, s:int):
@@ -116,7 +138,7 @@ class EmployeeBase(BaseModel, abc.ABC):
       return f"User(id={self.id!r}, name={self.last_name!r}, {self.first_name!r}"
 
 class EmployeeRead(BaseModel):
-    id: Optional[UUID] 
+    id: UUID 
     emp_number: Optional[str]
     username: Optional[str] 
     first_name: Optional[str]
@@ -124,19 +146,61 @@ class EmployeeRead(BaseModel):
     middle_name: Optional[str] 
     salary: Optional[int] 
     email: Optional[str] 
-    hashed_password: Optional[str] = None
-    email_verified_at: Optional[datetime] = None
-    is_two_factor_auth_enabled: Optional[int] = None
-    active: Optional[int] = None 
-    has_verified_email: Optional[int] = None
-    gender: Optional[Gender] 
-    roles: Optional[List[Role]]
-    department: Optional[Department]
-    # contract_id: Optional[int]
-    # contract: Optional[EmploymentContract]
-    contract_type: ContractModel = Field(..., discriminator='type')
-    contract_data: Json
+    contract_type: Optional[str]
+    updated_at: datetime
+    created_at: datetime
+    
+class EmployeeShort(BaseModel):
+    emp_number: Optional[str]
+    first_name: str = Field(exclude=True)
+    last_name: str = Field(exclude=True)
+    salary: Optional[int] 
+    contract_type: str
+    updated_at: datetime
 
+    @computed_field
+    @property
+    def full_name(self) -> str:
+      return f"{self.last_name}, {self.first_name}"
+
+    #override 
+    def model_dump(self, *args, **kwargs):
+        od = super().model_dump(*args, **kwargs)
+        full_name = self.full_name
+        emp_number = od.pop('emp_number')
+        salary = od.pop('salary')
+        contract_type = od.pop('contract_type')
+        updated_at = od.pop('updated_at')
+        
+        ordered_dict = {
+            'emp_number': emp_number,
+            'full_name': full_name,
+            'salary': salary,
+            'contract_type': contract_type,
+            'updated-at': updated_at
+        }
+        return ordered_dict
+    
+ 
+
+class EmployeePaymentsDTO(BaseModel):
+    employee: EmployeeShort
+    payment: str
+    contract_type: str
+
+    # override
+    def model_dump(self, *args, **kwargs):
+        od = super().model_dump(*args, **kwargs)
+        short_dump = self.employee.model_dump()
+        od.update(short_dump)
+        od.pop('employee')
+
+        ordered_dict = {
+            'employee': short_dump,
+            'contract_type': self.contract_type,
+            'payment': self.payment
+        }
+        return ordered_dict
 
 '''
      Annotated[

@@ -11,4 +11,5 @@ class CommissionContract(Contract):
         return "Commission"
 
     def get_payment(self) -> int:
-        return self.commission * self.num_contracts 
+        # each contract is worth  $1500
+        return self.commission * self.num_contracts * 1500

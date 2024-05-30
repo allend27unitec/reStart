@@ -2,17 +2,18 @@ from io import TextIOWrapper
 import sqlite3 as sql
 import bcrypt
 import re
-from uuid import UUID, uuid4()
-import csv
+import json
 import random
 from sqlite3.dbapi2 import Connection
 import pandas as pd
 # import const
 # import services
 # import locations
-from typing import Optional
+from typing import Optional, List
+from datetime import datetime
 
 global fileName, WRITE_SCRIPT
+ctype:List = ["freelancer","commission","hourly","salaried","none"]
    
 fileName = '../../MOCK_DATA.csv'
 WRITE_SCRIPT = True
@@ -43,7 +44,7 @@ def connectSQLite() -> Connection | None:
 
     return db
 
-def random_date(flag):
+def random_date(flag) -> datetime:
     start = None
     end = None
     startU = None
@@ -66,6 +67,28 @@ def random_date(flag):
 def isEveryOther(time):
    return (random.randrange(1,100) % time == 0)
 
+def create_contract():
+    hours = random.randrange(20,80)
+    rate =  random.randrange(25,150) * 100
+    numc =  random.randrange(1,15)
+    comm =  random.randrange(1,15)
+    over =  random.randrange(1000,5505)
+    salary =  random.randrange(40000,150000) * 100
+
+    c = random.choice(ctype)
+    match(c):
+        case "freelancer":
+            contract = {"ctype": c, "hours": hours, "rate": rate}
+        case "hourly":
+            contract = {"ctype": c, "hours": hours, "rate": rate, "overhead":over}
+        case "commission":
+            contract = {"ctype": c, "commission": comm, "num_contracts":numc}
+        case "salaried":
+            contract = {"ctype": c, "salary": salary, "hours": hours}
+        case "none":
+            contract = {"ctype": c}
+
+    return json.dumps(contract)
 
 class create_employee:
 
@@ -86,7 +109,8 @@ class create_employee:
                                            salary,\
                                            email,\
                                            hashed_password,\
-                                           contract_id,\
+                                           contract_type,\
+                                           updated_at,\
                                            created_at\
                                            ) values \n"  
         sqlInsert = re.sub(' +', ' ', sqlInsert)
@@ -99,22 +123,30 @@ class create_employee:
                 lc = ";\n"
             row = self.rd.iloc[id]
             uuid = row['UUID']
+            cd:datetime = random_date(0)
+            ud:datetime = random_date(0)
+            if (cd.date() > ud.date()):
+                t = cd; cd = ud; ud = t
+        #{'ctype': 'freelancer', 'rate': 3000, 'hours':5300}
             initials = row['first_name'][0] + row['middle_name'][0]
             lastname = row['last_name']
             username = initials + lastname
             initials = initials + lastname[0]
             emp_number = initials + str(random.randrange(1928, 4394)) 
+            cjson = create_contract() 
             self.uuid_list.append(uuid)
             sqlInsert += "('"+str(uuid)+"', '"
             sqlInsert += emp_number +"', '"
             sqlInsert += username +"', '"
             sqlInsert += row['last_name'].replace("'", "`")+"', '"
             sqlInsert += row['first_name'].replace("'", "`")+"', '"
-            sqlInsert += row['middle_name'].replace("'", "`")+"', "
-            sqlInsert += str(random.randrange(4000000,14000000))+", '"
+            sqlInsert += row['middle_name'].replace("'", "`")+"', '"
+            sqlInsert += str(random.randrange(40000,140000)*100)+"', '"
             sqlInsert += row['email']+"', '" 
             sqlInsert += str(hpass).replace("'", "`") +"', '"
-            sqlInsert += str(random.randrange(1, 5))+", "
+            sqlInsert += cjson+"', '"
+            #sqlInsert += str('`{"ctype": ')+contract+str(', "rate": ')+str(rate)+str(', "hours": ')+str(hours)+"}`"+"', '"
+            sqlInsert += str(random_date(0))+"', '"
             sqlInsert += str(random_date(0))+"')" + lc
         print(sqlInsert)
         return sqlInsert
@@ -125,17 +157,19 @@ class create_employee:
 
 def writeSqlScript(script: str) -> TextIOWrapper:
     sqlScriptFile = open("sqlScript.txt", 'w+')
-        # Print and save lines with line numbers
     for line in script:
         sqlScriptFile.write(line)
 
     return sqlScriptFile 
 
+conLite=None
+sqlScriptFile=None
 if WRITE_SCRIPT:
     conLite = connectSQLite()
 
-    employee = create_employee()
-    res = employee.create_sql()
+employee = create_employee()
+res = employee.create_sql()
+if WRITE_SCRIPT:
     if (conLite is not None):
         cursor = conLite.cursor()
         cursor.execute("pragma foreign_keys = OFF;")

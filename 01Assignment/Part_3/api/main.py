@@ -6,9 +6,8 @@ from sqlalchemy.orm.scoping import ScopedSession
 sys.path.append("../../../")
 from typing import Optional, List, Any, Dict
 from fastapi import FastAPI, Depends, HTTPException, status
-from sqlalchemy import Column, Integer, String, create_engine, null
+from sqlalchemy import create_engine
 from sqlalchemy.orm import (
-    Session,
     sessionmaker,
     scoped_session
 )
@@ -55,7 +54,7 @@ async def root():
     return {"Hello": "World"}
 
 @app.get("/api/v1/owners", response_model=List[OwnerRead])
-async def get_all_owners(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)) -> Any:
+async def get_all_owners(skip: int = 0, limit: int = 20, db: ScopedSession = Depends(get_db)) -> Any:
     sa_owners = db.query(saOwner.Owner).offset(skip).limit(limit).all()
     owners: List[OwnerRead] = []
     for owner in sa_owners:
@@ -63,7 +62,7 @@ async def get_all_owners(skip: int = 0, limit: int = 20, db: Session = Depends(g
     return owners
     
 @app.get("/api/v1/cars", response_model=List[CarRead])
-async def get_all_cars(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)) -> Any:
+async def get_all_cars(skip: int = 0, limit: int = 20, db: ScopedSession = Depends(get_db)) -> Any:
     sa_cars = db.query(Car).offset(skip).limit(limit).all()
     cars: List[CarRead] = []
     for car in sa_cars:
@@ -71,7 +70,7 @@ async def get_all_cars(skip: int = 0, limit: int = 20, db: Session = Depends(get
     return cars
 
 @app.post("/api/v1/owners/", response_model=Any)
-async def create_owner(*, db: Session = Depends(get_db), owner: OwnerCreateDTO):   
+async def create_owner(*, db: ScopedSession = Depends(get_db), owner: OwnerCreateDTO):   
     owner_data = owner.model_dump(exclude={'cars'})
     sa_owner = saOwner.Owner(**owner_data)
     sa_cars = []
@@ -89,7 +88,7 @@ async def create_owner(*, db: Session = Depends(get_db), owner: OwnerCreateDTO):
     return {"new owner id": owner.id}
 
 @app.get("/api/v1/owners-full-details{owner_id}", response_model=OwnerWithCarsDTO)
-async def get_owner_car(owner_id: int, db: Session = Depends(get_db)) -> Any:
+async def get_owner_car(owner_id: int, db: ScopedSession = Depends(get_db)) -> Any:
     sa_owner = db.query(saOwner.Owner).filter(saOwner.Owner.id == owner_id).first()
     if sa_owner is None:
         raise HTTPException(status_code=404,
@@ -106,7 +105,7 @@ async def get_owner_car(owner_id: int, db: Session = Depends(get_db)) -> Any:
     return OwnerWithCarsDTO(owner=owner, cars=cars)
 
 @app.get("/api/v1/cars-full-details{car_id}", response_model=CarWithOwnersDTO)
-async def get_car_owner(car_id: int, db: Session = Depends(get_db)) -> Any:
+async def get_car_owner(car_id: int, db: ScopedSession = Depends(get_db)) -> Any:
     # get the sa car
     sa_car = db.query(saOwner.Car).filter(saOwner.Car.id == car_id).first()
     if sa_car is None:
@@ -128,7 +127,7 @@ async def get_car_owner(car_id: int, db: Session = Depends(get_db)) -> Any:
     return CarWithOwnersDTO(car=car, owners=car_owners)
 
 @app.patch("/api/v1/owner/{owner_id}", response_model=OwnsCarUpdate)
-async def update_car(*, owner_id: int, db: Session=Depends(get_db), hero: OwnsCarUpdate) -> Any:
+async def update_car(*, owner_id: int, db: ScopedSession=Depends(get_db), cars: OwnsCarUpdate) -> Any:
     owner_cars: OwnerWithCarsDTO = await get_owner_car(owner_id=owner_id, db=db)
     owner_data = owner_cars.model_dump(exclude={'cars'})
     car_data = owner_cars.model_dump(exclude={'owner'})
@@ -139,7 +138,7 @@ async def update_car(*, owner_id: int, db: Session=Depends(get_db), hero: OwnsCa
 '''
     
 @app.get("/api/v1/cars", response_model=List[CarBase])
-async def fetch_cars(skip: int=0, limit: int=20, db: Session=Depends(get_db)) -> Any:
+async def fetch_cars(skip: int=0, limit: int=20, db: ScopedSession=Depends(get_db)) -> Any:
     cList = db.query(Car).offset(skip).limit(limit).all()
     cars: List[CarBase] = []
     for car in cList:

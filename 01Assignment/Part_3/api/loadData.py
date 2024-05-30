@@ -211,7 +211,6 @@ class create_ownscar:
 
 def writeSqlScript(script: str) -> TextIOWrapper:
     sqlScriptFile = open("sqlScript.txt", 'w+')
-        # Print and save lines with line numbers
     for line in script:
         sqlScriptFile.write(line)
 
