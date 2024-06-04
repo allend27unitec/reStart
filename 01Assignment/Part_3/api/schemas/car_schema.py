@@ -8,16 +8,15 @@ from datetime import datetime
 from .owner_schema import OwnerWithCarsDTO
 
 class BaseModel(PydanticBase):
-    class Config:
-        model_config = ConfigDict(
-            extra='ignore', 
-            from_attributes=True,
-            arbitrary_types_allowed = True,
-            )
+    model_config = ConfigDict(
+        extra='ignore', 
+        from_attributes=True,
+        arbitrary_types_allowed = True,
+        )
 
 class CarBase(BaseModel):
 #    model_config = ConfigDict(from_attributes=True)
-    id: Optional[int]
+    id: int
     make: str 
     model: str
     style: str
@@ -34,9 +33,12 @@ class CarUpdate(BaseModel):
     updated_at: datetime
 
 class CarRead(BaseModel):
-    make: Optional[str]
-    model: Optional[str]
+    make: str
+    model: str
     style: str
+    year: str
+    #updated_at: datetime
+    #created_at: datetime
     #year: Optional[str]
 
 class CarWithOwnersDTO(BaseModel):

@@ -20,10 +20,8 @@ class Owner(OrmBase):
    first_name: Mapped[str] = mapped_column(String(255))
    middle_name: Mapped[str] = mapped_column(String(255), nullable=True)
    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
-   updated_at: Mapped[datetime] = mapped_column(DateTime)
-   created_at: Mapped[datetime] = mapped_column(DateTime)
-   #updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-   #created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+   updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+   created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
 class OwnsCar(OrmBase): 
    __tablename__ = "ownscar"
@@ -37,10 +35,8 @@ class OwnsCar(OrmBase):
    vin: Mapped[str] = mapped_column(String(255))  
    plate_number: Mapped[str] = mapped_column(String(255), nullable=True)
    purchased_dt: Mapped[date] = mapped_column(Date)
-   updated_at: Mapped[datetime] = mapped_column(DateTime)
-   created_at: Mapped[datetime] = mapped_column(DateTime)
-   #updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-   #created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+   updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+   created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
 class OwnerUpdateRequest(OrmBase):
    __tablename__ = 'owner'

@@ -25,6 +25,8 @@ aiofiles = "*"
 pandas = "*"
 bcrypt = "*"
 sqlmodel = "*"
+httpx = "*"
+pydantic = "*"
 
 [dev-packages]
 

@@ -1,5 +1,6 @@
 from uuid import UUID, uuid4
-from sqlalchemy import Column, BigInteger, String, Text, DateTime, Boolean, Integer, ForeignKey
+from pydantic import Json
+from sqlalchemy import BigInteger, String, JSON, DateTime
 from sqlalchemy.orm import (
     Mapped,
     declarative_base,
@@ -24,6 +25,6 @@ class Employee(OrmBase):
     salary: Mapped[int] = mapped_column(BigInteger, nullable=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=True)
-    contract_type: Mapped[str] = mapped_column(String(255), nullable=True) # the type of contract
+    contract_type: Mapped[str] = mapped_column(JSON, nullable=True) # the type of contract
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)

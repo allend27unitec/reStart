@@ -1,9 +1,8 @@
-from re import A
 import sys
 import json
 from pydantic import PydanticUserError
 from sqlalchemy.orm.scoping import ScopedSession
-sys.path.append("../../../")
+sys.path.append("../../")
 from typing import Optional, List, Any, Dict
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy import create_engine
@@ -14,7 +13,8 @@ from sqlalchemy.orm import (
 import models.owner_model as saOwner
 from models.car_model import Car
 from schemas.owner_schema import OwnerCreateDTO, OwnsCar, OwnerRead, OwnerWithCarsDTO, OwnsCarUpdate
-from schemas.car_schema import CarWithOwnersDTO, CarRead
+from schemas.car_schema import CarWithOwnersDTO, CarRead, CarBase
+
 
 app = FastAPI(
     title="Assignment 1 Part 3 ",
@@ -51,16 +51,16 @@ def serialize(item: List[str]) -> str:
 
 @app.get("/")
 async def root():
-    return {"Hello": "World"}
+    return {"Hello": "Part 3"}
 
-@app.get("/api/v1/owners", response_model=List[OwnerRead])
+@app.get("/api/v1/owners", status_code=status.HTTP_200_OK, response_model=List[OwnerRead])
 async def get_all_owners(skip: int = 0, limit: int = 20, db: ScopedSession = Depends(get_db)) -> Any:
     sa_owners = db.query(saOwner.Owner).offset(skip).limit(limit).all()
     owners: List[OwnerRead] = []
     for owner in sa_owners:
         owners.append(to_pydantic(owner, OwnerRead))
     return owners
-    
+   
 @app.get("/api/v1/cars", response_model=List[CarRead])
 async def get_all_cars(skip: int = 0, limit: int = 20, db: ScopedSession = Depends(get_db)) -> Any:
     sa_cars = db.query(Car).offset(skip).limit(limit).all()
@@ -69,23 +69,41 @@ async def get_all_cars(skip: int = 0, limit: int = 20, db: ScopedSession = Depen
         cars.append(to_pydantic(car, CarRead))
     return cars
 
-@app.post("/api/v1/owners/", response_model=Any)
+@app.post("/api/v1/register/", status_code=status.HTTP_201_CREATED, response_model=OwnerWithCarsDTO)
 async def create_owner(*, db: ScopedSession = Depends(get_db), owner: OwnerCreateDTO):   
     owner_data = owner.model_dump(exclude={'cars'})
     sa_owner = saOwner.Owner(**owner_data)
+    or_owner = to_pydantic(sa_owner, OwnerRead)
     sa_cars = []
     for car in owner.cars:
         car_data = car.model_dump()
         sa_car = saOwner.OwnsCar(**car_data) 
         sa_cars.append(sa_car)
     db.add(sa_owner)
-    db.add_all(sa_cars)
+    if (sa_cars is not None):
+        db.add_all(sa_cars)
     db.commit()
     '''
     db.refresh(sa_owner)
     db.refresh(sa_cars)
     '''
-    return {"new owner id": owner.id}
+    return OwnerWithCarsDTO(owner=or_owner, cars=owner.cars)
+    
+@app.post("/api/v1/carregister/", status_code=status.HTTP_201_CREATED, response_model=CarBase)
+async def create_car(*, db: ScopedSession = Depends(get_db), car: CarBase):   
+    sa_car = from_pydantic(car, Car) 
+    db.add(sa_car)
+    db.commit()
+    #db.refresh(car)
+    new_car = to_pydantic(sa_car, CarBase)  # adds the create and update
+    return CarBase(id=new_car.id,
+                   make=new_car.make, 
+                   model=new_car.model,
+                   style=new_car.style,
+                   year=new_car.year,
+                   updated_at=new_car.updated_at,
+                   created_at=new_car.created_at)
+
 
 @app.get("/api/v1/owners-full-details{owner_id}", response_model=OwnerWithCarsDTO)
 async def get_owner_car(owner_id: int, db: ScopedSession = Depends(get_db)) -> Any:

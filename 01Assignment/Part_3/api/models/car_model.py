@@ -5,7 +5,7 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 from .base_model import OrmBase
-from datetime import datetime, date
+from datetime import datetime
 
 # Set up ORM
 
@@ -18,10 +18,8 @@ class Car(OrmBase):
     model: Mapped[str] = mapped_column(String(255))
     style: Mapped[str] = mapped_column(String(255))
     year: Mapped[str] = mapped_column(String(4))  # model year
-    # updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
-    # created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    updated_at: Mapped[str] = mapped_column(DateTime)
-    created_at: Mapped[str] = mapped_column(DateTime)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
 class CarUpdateRequest(OrmBase):
     __tablename__ = 'car'

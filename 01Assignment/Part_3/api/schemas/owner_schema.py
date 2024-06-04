@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr,Field
 from typing import Optional, List
 from datetime import datetime, date
-from models.owner_model import Owner, OwnsCar
+#from models.owner_model import Owner, OwnsCar
 
 class OwnerBase(BaseModel):
 #    model_config = ConfigDict(from_attributes=True)
@@ -27,8 +27,7 @@ class OwnerBase(BaseModel):
       return f"User(id={self.id!r}, name={self.last_name!r}, {self.first_name!r}"
 
 class OwnsCar(BaseModel): 
-   
-    #id: Optional[int]
+    id: int
     owner_id: int
     car_id: int
     colour: str 
@@ -47,7 +46,9 @@ class OwnerCreateDTO(BaseModel):
     first_name: str
     last_name: str
     middle_name: Optional[str] 
-    email: str 
+    email: EmailStr 
+    updated_at: Optional[datetime]
+    created_at: Optional[datetime]
     cars: List[OwnsCar]
 
 class OwnerUpdate(BaseModel):

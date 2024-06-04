@@ -2,6 +2,7 @@ import sys
 import random
 from datetime import datetime
 import json
+import bcrypt
 import difflib    
 import aiofiles
 import asyncio
@@ -22,7 +23,13 @@ from sqlalchemy.orm import (
 from uuid import UUID, uuid4
 #from project.settings import settings
 from models.employee_model import Employee
-from schemas.employee_schema import EmployeeRead, ContractModel, EmployeePaymentsDTO, EmployeeShort
+from schemas.employee_schema import (EmployeeBase, 
+                                     EmployeeRead, 
+                                     ContractModel, 
+                                     EmployeePaymentsDTO, 
+                                     EmployeeShort,
+                                     EmployeeCreate
+                                     )
 from dictionaries import convert
 from flow_control import print_pattern
 from file_handling import format_text_file
@@ -37,7 +44,8 @@ from sqlalchemy import create_engine
 
 app = FastAPI(
     title="Assignment 1 Part 1 ",
-    description="Demonstration of Object Orientated Programming and modular class structure"
+    description="Demonstration of Object Orientated Programming with abstract classes, 
+    database models and schemas, testing with pytest"
 )
 
 def create_session() -> ScopedSession:
@@ -61,7 +69,7 @@ def to_pydantic(model_instance, pydantic_model):
     return pydantic_model(**model_dict)
 
 def from_pydantic(pydantic_model, model_class):
-    model_dict = pydantic_model.dict(exclude_unset=True)
+    model_dict = pydantic_model.model_dump()
     return model_class(**model_dict)
 
 class FunctionParams(BaseModel):
@@ -97,7 +105,7 @@ class FlatFileUpload:
 
 @app.get("/")
 async def root():
-    return {"Hello": "World"}
+    return {"Hello": "Part 1"}
 
 @app.get("/api/v1/employees", response_model=List[EmployeeRead])
 async def get_all_employee(skip: int = 0, limit: int = 20, db: ScopedSession = Depends(get_db)) -> Any:
@@ -107,25 +115,46 @@ async def get_all_employee(skip: int = 0, limit: int = 20, db: ScopedSession = D
         employees.append(to_pydantic(emp, EmployeeRead))
     return employees 
 
+@app.post("/api/v1/register", status_code=status.HTTP_201_CREATED, response_model=EmployeeBase)
+async def register_employee(employee: EmployeeBase, db: ScopedSession = Depends(get_db)) -> Any:
+#async def register_employee(employee: EmployeeBase):
+    sa_employee = from_pydantic(employee, Employee)
+    contract = employee.contract_type 
+    new_employee = to_pydantic(sa_employee, EmployeeBase)
+    password = b'password'
+    salt = bcrypt.gensalt()
+    hpass = bcrypt.hashpw(password, salt)
+    new_employee.hashed_password = str(hpass)
+    sa_employee.hashed_password = str(hpass)
+    db.add(sa_employee)
+    db.commit()
+    #contract_type = json.dumps(contract)
+    return new_employee
+
 @app.get("/api/v1/payments", response_model=List[EmployeePaymentsDTO])
 async def get_employee_payments(skip: int = 0, limit: int = 20, db: ScopedSession = Depends(get_db)) -> Any:
     sa_employees = db.query(Employee).offset(skip).limit(limit).all()
     employees: List[EmployeePaymentsDTO] = []
     for emp in sa_employees:
         employee = to_pydantic(emp, EmployeeShort)
-        contract = json.loads(employee.contract_type)
-        contract = {"contract": contract}
+        c:ContractModel = employee.contract_type 
+        contract = c.model_dump(mode='json')
+        '''
+        refactored from the original str to model
+        #contract = json.loads(contract)
+        #contract = {"contract": contract}
         #print(f"json loaded contract {contract}")
         #print(f"attribute value {employee.contract_type}")
+        #    employee = employee.model_dump(exclude={'contract_type'})
+        '''
         temp = ContractModel(**contract).execute_contract().get_payment()
-        payment = f"{temp/100:.2f}"
+        payment = f"${temp/100:,.2f}"
         ctype = ContractModel(**contract).execute_contract().contract_type()
-        #employee = employee.model_dump_json()
         employees.append(EmployeePaymentsDTO(employee=employee, payment=payment, contract_type=ctype))
         
     return employees
 
-@app.get("/api/v1/employee/{employee_id}", response_model=Any)
+@app.get("/api/v1/employee/{employee_id}", response_model=EmployeePaymentsDTO)
 async def get_employee(employee_id:UUID, db: ScopedSession = Depends(get_db)) -> Any:
     sa_employee = db.query(Employee).filter(Employee.id == employee_id).first()
     if sa_employee is None:
@@ -144,14 +173,15 @@ async def get_employee(employee_id:UUID, db: ScopedSession = Depends(get_db)) ->
                 raise HTTPException(status_code=404,
                                     detail="Employee not found")
     employee = to_pydantic(sa_employee, EmployeeShort)
-    contract = json.loads(employee.contract_type)
-    contract = {"contract": contract}
+    c:ContractModel = employee.contract_type 
+    contract = c.model_dump(mode='json')
     temp = ContractModel(**contract).execute_contract().get_payment()
-    payment = f"{temp/100:.2f}"
+    payment = f"${temp/100:,.2f}"
     ctype = ContractModel(**contract).execute_contract().contract_type()
     emp_dto = EmployeePaymentsDTO(employee=employee, payment=payment, contract_type=ctype)
     #print(emp_dto.model_dump())
-    return emp_dto.model_dump()
+    #return emp_dto.model_dump()
+    return emp_dto 
 
 @app.post("/api/v2/dictionaries", response_class=Response)
 async def convert_dict(params: FunctionParams) -> Any:

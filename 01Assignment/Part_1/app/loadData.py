@@ -13,7 +13,6 @@ from typing import Optional, List
 from datetime import datetime
 
 global fileName, WRITE_SCRIPT
-ctype:List = ["freelancer","commission","hourly","salaried","none"]
    
 fileName = '../../MOCK_DATA.csv'
 WRITE_SCRIPT = True
@@ -76,6 +75,7 @@ def create_contract():
     salary =  random.randrange(40000,150000) * 100
 
     c = random.choice(ctype)
+    contract = ""
     match(c):
         case "freelancer":
             contract = {"ctype": c, "hours": hours, "rate": rate}
@@ -87,7 +87,7 @@ def create_contract():
             contract = {"ctype": c, "salary": salary, "hours": hours}
         case "none":
             contract = {"ctype": c}
-
+    contract = {"contract" : contract}
     return json.dumps(contract)
 
 class create_employee:

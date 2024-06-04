@@ -6,7 +6,6 @@ class SalariedContract(Contract):
 
     hours: int = 0
     salary: int = 0
-
     def get_payment(self) -> int:
         return self.calculate_emp_salary() 
 
