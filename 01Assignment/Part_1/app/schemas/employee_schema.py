@@ -90,6 +90,17 @@ class ContractModel(BaseModel):
 
 class EmployeeCreate(BaseModel):
     id: UUID = Field(default_factory=uuid4)
+    emp_number: str
+    username: str 
+    first_name: str 
+    last_name: str  
+    middle_name: Optional[str]
+    salary: int
+    email: EmailStr
+    hashed_password: str
+    contract_type: ContractModel
+    updated_at: datetime
+    created_at: datetime
 
 class EmployeeBase(BaseModel):
 

@@ -42,10 +42,11 @@ from sqlalchemy.orm.scoping import ScopedSession
 from sqlalchemy import create_engine
 
 
+MIN_SALARY = 4000000
+
 app = FastAPI(
     title="Assignment 1 Part 1 ",
-    description="Demonstration of Object Orientated Programming with abstract classes, 
-    database models and schemas, testing with pytest"
+    description="Demonstration of Object Orientated Programming with abstract classes, database models and schemas, testing with pytest"
 )
 
 def create_session() -> ScopedSession:
@@ -116,18 +117,24 @@ async def get_all_employee(skip: int = 0, limit: int = 20, db: ScopedSession = D
     return employees 
 
 @app.post("/api/v1/register", status_code=status.HTTP_201_CREATED, response_model=EmployeeBase)
-async def register_employee(employee: EmployeeBase, db: ScopedSession = Depends(get_db)) -> Any:
-#async def register_employee(employee: EmployeeBase):
+async def register_employee(employee: EmployeeCreate, db: ScopedSession = Depends(get_db)) -> Any:
     sa_employee = from_pydantic(employee, Employee)
     contract = employee.contract_type 
+    if ( sa_employee.salary <= MIN_SALARY):
+        raise HTTPException(
+            status_code=400,
+            detail=f"salary below threshold"
+            )
     new_employee = to_pydantic(sa_employee, EmployeeBase)
     password = b'password'
     salt = bcrypt.gensalt()
     hpass = bcrypt.hashpw(password, salt)
     new_employee.hashed_password = str(hpass)
     sa_employee.hashed_password = str(hpass)
+
     db.add(sa_employee)
     db.commit()
+    db.refresh(sa_employee)
     #contract_type = json.dumps(contract)
     return new_employee
 
@@ -156,7 +163,8 @@ async def get_employee_payments(skip: int = 0, limit: int = 20, db: ScopedSessio
 
 @app.get("/api/v1/employee/{employee_id}", response_model=EmployeePaymentsDTO)
 async def get_employee(employee_id:UUID, db: ScopedSession = Depends(get_db)) -> Any:
-    sa_employee = db.query(Employee).filter(Employee.id == employee_id).first()
+    #sa_employee = db.query(Employee).filter(Employee.id == employee_id).first()
+    sa_employee = db.get(Employee, employee_id)
     if sa_employee is None:
         print(f"couldn't find {employee_id} - will try sequential search")
         #raise HTTPException(status_code=404,

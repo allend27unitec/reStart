@@ -25,7 +25,11 @@ class CarBase(BaseModel):
     created_at: datetime
 
 class CarCreate(BaseModel):
-    pass
+    id: int
+    make: str
+    model: str
+    style: str
+    year: str
 
 class CarUpdate(BaseModel):
     make: Optional[str]

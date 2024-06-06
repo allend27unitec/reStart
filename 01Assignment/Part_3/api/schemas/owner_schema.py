@@ -38,9 +38,6 @@ class OwnsCar(BaseModel):
 class UpdateCar(BaseModel):
     plate_number: Optional[str]
 
-class OwnsCarUpdate(BaseModel): 
-    cars: Optional[List[UpdateCar]]
-
 class OwnerCreateDTO(BaseModel):
     id: int 
     first_name: str
